@@ -39,9 +39,14 @@ jobs:
       - uses: julia-actions/cache@v1
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4.0.1
-        # uses: codecov/codecov-action@v3
-        env:
+      # - name: Upload coverage reports to Codecov
+      #   uses: codecov/codecov-action@v4.0.1
+      #   # uses: codecov/codecov-action@v3
+      #   env:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     slug: errikos-melissinos/ConsumptionFinance
+      - uses: codecov/codecov-action@v4
+        with:
+          # possibly other stuff
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: errikos-melissinos/ConsumptionFinance
+          fail_ci_if_error: false
