@@ -2,6 +2,8 @@ using Test
 import ConsumptionFinance as cf
 import DifferentialEquations.EnsembleAnalysis as ensemble
 import StochasticDiffEq as sde
+import Statistics as stats
+
 
 
 paths = 5

@@ -1,6 +1,5 @@
-using ConsumptionFinance
-using SafeTestsets
 using Test
+using SafeTestsets
 
 @time begin
     @time @safetestset "Simple Tests" begin
