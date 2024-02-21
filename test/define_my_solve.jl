@@ -10,7 +10,7 @@ paths, t0, t1, dt = 10, 0.0, 1.0, 0.05
 alg = sde.EM()
 tempFunc = cf.defineMySolve(sde.EM(), dt, t0:2dt:t1)
 W = sde.WienerProcess(0.0, 0.0, 0.0)
-problem = sde.SDEProblem((du, u, p, t) -> (du[1] = 0.1), (du, u, p, t) -> (du[1] = 0.01), [0], (0.0, 1.0), noise=W)
+problem = sde.SDEProblem((du, u, p, t) -> (du[1] = 0.1), (du, u, p, t) -> (du[1] = 0.05), [0], (0.0, 1.0), noise=W)
 ensembleProblem = ensemble.EnsembleProblem(problem)
 
 
