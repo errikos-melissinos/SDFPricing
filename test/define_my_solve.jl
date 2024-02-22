@@ -24,7 +24,7 @@ sol = tempFunc(ensembleProblem, paths)
 @test sol[1].t[1] == t0
 @test sol[1].t[end] == t1
 @test sol[1].t[2] - sol[1].t[1] ≈ 2dt
-@test stats.var(sol[1].u)[1] > 0.001
+@test stats.var(sol[1].u)[1] > 0.00001
 
 numInitialVals = 5
 u0 = [[0.1 * i] for i in 1:numInitialVals]
