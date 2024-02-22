@@ -13,3 +13,7 @@ paths = 1000
 
 
 
+mod = cf.Model()
+(price,) = cf.solveModel(mod)
+
+price(1.0, 0.01)

@@ -1,5 +1,5 @@
 """
-This struct holds the info of the problem and the results. It can also be used to get the price of the zero coupon security as a function of time and the state variable.
+This struct holds the info of the problem and (possibly) the results. It can also be used to get the price of the zero coupon security as a function of time and the state variable.
 Its fields are:
 - solArray:   the price of the security for the grid values of the state variable and time.
 - solIntp:   the interpolation of the price of the security.
@@ -16,8 +16,9 @@ Its fields are:
 - dt::Float64
 - algorithm
 
+This struct can also be initialised to not hold any results and then it can be passed to 
 """
-struct ZeroCouponSecurityModel{arr,intp,sol,dr,dif,xs,iv,tf,ts,alg}
+struct Model{arr,intp,sol,dr,dif,xs,iv,tf,ts,alg}
     solArray::arr
     solIntp::intp
     examples::sol
@@ -33,11 +34,31 @@ struct ZeroCouponSecurityModel{arr,intp,sol,dr,dif,xs,iv,tf,ts,alg}
     pathsPerInitialValue::Int64
     dt::Float64
     algorithm::alg
+
+    #* Default constructor
+    Model(;
+        solArray=nothing,
+        solIntp=nothing,
+        examples=nothing,
+        drift=((du, u, p, t) -> (du[1] = u[1]; du[2] = u[1])),
+        diffusion=((du, u, p, t) -> (du[1] = 0.01; du[2] = 0.0)),
+        xSpans=(-0.03:0.01:0.05,),
+        initialValues=[[x, 0.0] for x in -0.03:0.01:0.05],
+        tSpan=0.0:0.5:5.0,
+        numNoiseVariables=1,
+        outVariables=[2],
+        terminalFunction=(k, x, y, z) -> exp(-x),
+        dt=0.5,
+        algorithm=sde.EM()
+    ) = new{Any,Any,Any,Function,Function,Tuple,Array,Function,StepRangeLen,typeof(sde.EM())}(solArray, solIntp, examples, drift, diffusion, xSpans, initialValues, numNoiseVariables, outVariables, terminalFunction, true, tSpan, 8000, dt, algorithm)
+
+    #* General constructor
+    Model(means, interpolation, exampleSols, drift, diffusion, xSpans, initialValues, numNoiseVariables, outVariables, terminalFunction, diagonalNoise, tSpan, pathsPerInitialValue, dt, algorithm) = new{Any,Any,Any,Function,Function,Tuple,Array,Function,StepRangeLen,typeof(sde.EM())}(means, interpolation, exampleSols, drift, diffusion, xSpans, initialValues, numNoiseVariables, outVariables, terminalFunction, diagonalNoise, tSpan, pathsPerInitialValue, dt, algorithm)
 end
 
 
-#* add a call operator for the ZeroCouponSecurityModel
-function (model::ZeroCouponSecurityModel)(t, args...)
+#* add a call operator for the Model struct
+function (model::Model)(t, args...)
     model.solIntp(t, args...)
 end
 
@@ -53,7 +74,7 @@ defineMySolve(algorithm, dt, tSpan) = ((ensembleProblem, trajectories) -> sde.so
 
 
 """
-zeroCouponSecurity(drift,diffusion,xSpans,initialValues,numNoiseVariables::Int64,outVariables::Vector{Int64},terminalFunction,diagonalNoise::Bool=true,tSpan=0.0:1.0:20.0,pathsPerInitialValue::Int64=8000,dt::Float64=1 / 12, algorithm=sde.EM())
+solveModel(drift,diffusion,xSpans,initialValues,numNoiseVariables::Int64,outVariables::Vector{Int64},terminalFunction,diagonalNoise::Bool=true,tSpan=0.0:1.0:20.0,pathsPerInitialValue::Int64=8000,dt::Float64=1 / 12, algorithm=sde.EM())
 
 The pricing equation is:
 E[d(ΛQ)/Λ]==0, where Λ is the SDF and Q is the price of the zero coupon security price. After applying Ito's lemma to dQ and given the SDF dΛ/Λ, we can derive a linear pde of the following form:
@@ -80,8 +101,14 @@ tSpan: the time span that is saved for the interpolation, this should be a range
 pathsPerInitialValue: the number of paths that will be simulated for each initial value.
 dt: the time step that will be used in the simulation (this applies only for some algorithms).
 algorithm: the algorithm that will be used in the simulation, the algorithms are from the StochasticDiffEq package.
+
+Output
+The output is a tuple that contains model structs. So if there is only one outVariable then the function should be called as follows:
+
+(price,) = solveModel(...)
+Price then can also be used as a function of remaining maturity and the state variable(s).
 """
-function zeroCouponSecurity(;
+function solveModel(;
     drift,
     diffusion,
     xSpans,
@@ -141,12 +168,11 @@ function zeroCouponSecurity(;
         means2 = reshape(means, myShape...)
         exampleSols = reshape([solution[pathsPerInitialValue*i] for (i, _) in enumerate(initialValues)], myShape[2:end]...)
         temp = intp.scale(intp.interpolate(means2, intp.BSpline(intp.Cubic())), (tSpan, xSpans...))
-        push!(models, ZeroCouponSecurityModel(means2, temp, exampleSols, drift, diffusion, xSpans, initialValues, numNoiseVariables, outVariables, terminalFunction, diagonalNoise, tSpan, pathsPerInitialValue, dt, solution[1].alg))
+        push!(models, Model(means2, temp, exampleSols, drift, diffusion, xSpans, initialValues, numNoiseVariables, outVariables, terminalFunction, diagonalNoise, tSpan, pathsPerInitialValue, dt, solution[1].alg))
     end
 
     models
 end
 
-
-
+solveModel(model) = solveModel(drift=model.drift, diffusion=model.diffusion, xSpans=model.xSpans, initialValues=model.initialValues, numNoiseVariables=model.numNoiseVariables, outVariables=model.outVariables, terminalFunction=model.terminalFunction, diagonalNoise=model.diagonalNoise, tSpan=model.tSpan, pathsPerInitialValue=model.pathsPerInitialValue, dt=model.dt, algorithm=model.algorithm)
 

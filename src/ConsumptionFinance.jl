@@ -8,8 +8,8 @@ import DifferentialEquations.EnsembleAnalysis as ensemble
 import Base.Iterators as iter
 
 #* load zeroCouponSecurity
-include("zeroCouponSecurity.jl")
+include("solveModel.jl")
 
-export zeroCouponSecurity
+export solveModel
 
 end
