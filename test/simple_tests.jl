@@ -15,5 +15,21 @@ paths = 1000
 
 mod = cf.Model()
 (price,) = cf.solveModel(mod)
+(perpetuity,) = cf.solvePerpetuity(mod)
 
 price(1.0, 0.01)
+solveModel
+
+using Plots
+plot(-0.03:0.0001:0.03, perpetuity(-0.03:0.0001:0.03))
+
+using ConsumptionFinance
+
+Model
+
+cf
+
+
+foo(; kwargs...) = get(kwargs, :x, 3)
+foo(x=2)
+

@@ -3,6 +3,7 @@ This struct holds the info of the problem and (possibly) the results. It can als
 Its fields are:
 - solArray:   the price of the security for the grid values of the state variable and time.
 - solIntp:   the interpolation of the price of the security.
+- perpetuityIntp::perpIntp
 - drif
 - diffusion
 - xSpan
@@ -28,6 +29,7 @@ struct Model{arr,intp,sol,dr,dif,xs,iv,tf,ts,alg}
     initialValues::iv
     numNoiseVariables::Int64
     outVariables::Vector{Int64}
+    outVariable::Int64
     terminalFunction::tf
     diagonalNoise::Bool
     tSpan::ts
@@ -47,21 +49,19 @@ struct Model{arr,intp,sol,dr,dif,xs,iv,tf,ts,alg}
         tSpan=0.0:0.5:5.0,
         numNoiseVariables=1,
         outVariables=[2],
+        outVariable=2,
         terminalFunction=(k, x, y, z) -> exp(-x),
         dt=0.5,
         algorithm=sde.EM()
-    ) = new{Any,Any,Any,Function,Function,Tuple,Array,Function,StepRangeLen,typeof(sde.EM())}(solArray, solIntp, examples, drift, diffusion, xSpans, initialValues, numNoiseVariables, outVariables, terminalFunction, true, tSpan, 8000, dt, algorithm)
+    ) = new{Any,Any,Any,Function,Function,Tuple,Array,Function,StepRangeLen,typeof(sde.EM())}(solArray, solIntp, examples, drift, diffusion, xSpans, initialValues, numNoiseVariables, outVariables, outVariable, terminalFunction, true, tSpan, 8000, dt, algorithm)
 
     #* General constructor
-    Model(means, interpolation, exampleSols, drift, diffusion, xSpans, initialValues, numNoiseVariables, outVariables, terminalFunction, diagonalNoise, tSpan, pathsPerInitialValue, dt, algorithm) = new{Any,Any,Any,Function,Function,Tuple,Array,Function,StepRangeLen,typeof(sde.EM())}(means, interpolation, exampleSols, drift, diffusion, xSpans, initialValues, numNoiseVariables, outVariables, terminalFunction, diagonalNoise, tSpan, pathsPerInitialValue, dt, algorithm)
+    Model(means, interpolation, exampleSols, drift, diffusion, xSpans, initialValues, numNoiseVariables, outVariables, outVariable, terminalFunction, diagonalNoise, tSpan, pathsPerInitialValue, dt, algorithm) = new{Any,Any,Any,Function,Function,Tuple,Array,Function,StepRangeLen,typeof(sde.EM())}(means, interpolation, exampleSols, drift, diffusion, xSpans, initialValues, numNoiseVariables, outVariables, outVariable, terminalFunction, diagonalNoise, tSpan, pathsPerInitialValue, dt, algorithm)
 end
 
 
-#* add a call operator for the Model struct
-function (model::Model)(t, args...)
-    model.solIntp(t, args...)
-end
-
+#* add a call operator for the Model struct that gives the price of the zero coupon security as a function of time and the state variable.
+(model::Model)(t, args...) = model.solIntp(t, args...)
 
 #* Each initial value will be simulated pathsPerInitialValue times. This function will return the index of the initial value that will be used for the i-th simulation.
 pickIndex(i, pathsPerInitialValue::Int64)::Int64 = 1 + div(i - 1, pathsPerInitialValue)
@@ -168,7 +168,7 @@ function solveModel(;
         means2 = reshape(means, myShape...)
         exampleSols = reshape([solution[pathsPerInitialValue*i] for (i, _) in enumerate(initialValues)], myShape[2:end]...)
         temp = intp.scale(intp.interpolate(means2, intp.BSpline(intp.Cubic())), (tSpan, xSpans...))
-        push!(models, Model(means2, temp, exampleSols, drift, diffusion, xSpans, initialValues, numNoiseVariables, outVariables, terminalFunction, diagonalNoise, tSpan, pathsPerInitialValue, dt, solution[1].alg))
+        push!(models, Model(means2, temp, exampleSols, drift, diffusion, xSpans, initialValues, numNoiseVariables, outVariables, k, terminalFunction, diagonalNoise, tSpan, pathsPerInitialValue, dt, solution[1].alg))
     end
 
     models
