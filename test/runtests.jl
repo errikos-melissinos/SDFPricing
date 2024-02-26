@@ -11,6 +11,6 @@ using SafeTestsets
     end
 
     @time @safetestset "Test zeroCouponSecurity" begin
-        include("zero_coupon_security.jl")
+        include("solve_tests.jl")
     end
 end

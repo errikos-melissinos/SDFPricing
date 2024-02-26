@@ -9,13 +9,13 @@ import DifferentialEquations.EnsembleAnalysis as ensemble
 import Base.Iterators as iter
 import QuadGK
 
-#* load basic solveModel
-include("solveModel.jl")
+include("v_parameters.jl")
+include("s_Problem.jl")
+include("s_SolutionSettings.jl")
+include("s_Solution.jl")
+include("f_solve.jl")
 
-#* load solvePerpetuity
-include("solvePerpetuity.jl")
 
-
-export solveModel, Model, solvePerpetuity
+export solve, Problem, SinglePayoffSolution, ContinuousPayoffSolution, SolutionSettings, toVector
 
 end
