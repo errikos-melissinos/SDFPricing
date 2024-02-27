@@ -206,7 +206,7 @@ function solve_continuousPayoff(solutions)
     for sol in solutions
         if sol.outVariable ∈ sol.solutionSettings.continuousPayoffVars
             integratedValues = [QuadGK.quadgk(t -> sol(t, args...), 0.0, sol.solutionSettings.continuousPayoffDuration)[1] for args in iter.product(sol.solutionSettings.continuousPayoffRanges...)]
-            push!(continuousPayoffSolutions, ContinuousPayoffSolution(integratedValues, intp.CubicSplineInterpolation(sol.solutionSettings.continuousPayoffRanges..., integratedValues), sol, sol.problem, sol.solutionSettings, sol.outVariable))
+            push!(continuousPayoffSolutions, ContinuousPayoffSolution(integratedValues, intp.cubic_spline_interpolation(sol.solutionSettings.continuousPayoffRanges..., integratedValues), sol, sol.problem, sol.solutionSettings, sol.outVariable))
         end
     end
     (solutions, continuousPayoffSolutions)
@@ -288,7 +288,7 @@ end
 @inline function solve_takeExpectation(pathsPerInitialValue, solution, k, t, j, terminalFunction, indices...)
     value = 0.0
     for (_, iPos) in enumerate(((j-1)*pathsPerInitialValue+1):(j*pathsPerInitialValue))
-        value += terminalFunction(Val(k), solution[iPos][k, t], solution[iPos].t[t], solution[iPos][:, t])
+        value += terminalFunction(Val(k), solution[:, iPos][k, t], solution[iPos].t[t], solution[iPos][:, t])
     end
     value / pathsPerInitialValue
 end
