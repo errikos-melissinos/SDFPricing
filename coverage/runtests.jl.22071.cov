@@ -1,0 +1,16 @@
+        - using Test
+        - using SafeTestsets
+        - 
+        1 @time begin
+        1     @time @safetestset "Simple Tests" begin
+        -         include("simple_tests.jl")
+        -     end
+        - 
+        1     @time @safetestset "Test defineMySolve" begin
+        -         include("define_my_solve.jl")
+        -     end
+        - 
+        1     @time @safetestset "Test zeroCouponSecurity" begin
+        -         include("solve_tests.jl")
+        -     end
+        - end
