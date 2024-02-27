@@ -268,19 +268,17 @@ function solve_singlePayoff(problem, solutionSettings)
             # @show initialValues[j]
             # @show sol[pathsPerInitialValue*j].u[1]
             # @show sol[pathsPerInitialValue*(j-1)+1].u[1]
-            @assert initialValues[j] == sol[pathsPerInitialValue*j].u[1] "The initial values are not consistent with the solutions."
             for t in 1:length(tRange)
                 means[t, ind...] = solve_takeExpectation(pathsPerInitialValue, sol, k, t, j, terminalFunction, ind...)
             end
         end
         # @show size(means)
-        samples = reshape([sol[pathsPerInitialValue*i] for (i, _) in enumerate(initialValues)], myShape[2:end]...)
+        samples = reshape([sol[:, pathsPerInitialValue*i] for (i, _) in enumerate(initialValues)], myShape[2:end]...)
         interpolation = intp.scale(intp.interpolate(means, intp.BSpline(intp.Cubic())), (tRange, xRanges...))
         push!(solutions, SinglePayoffSolution(means, interpolation, samples, problem, solutionSettings, k))
     end
     # @show Js
     # @show ind
-    @show initialVals
     # @show reshape(initialValues, length.(xRanges)...)
     solutions
 end
@@ -288,7 +286,14 @@ end
 @inline function solve_takeExpectation(pathsPerInitialValue, solution, k, t, j, terminalFunction, indices...)
     value = 0.0
     for (_, iPos) in enumerate(((j-1)*pathsPerInitialValue+1):(j*pathsPerInitialValue))
-        value += terminalFunction(Val(k), solution[:, iPos][k, t], solution[iPos].t[t], solution[iPos][:, t])
+        # temp = solution[:, iPos].t[t]
+        # temp1 = solution[t, iPos][k]
+        # temp2 = solution[:, iPos].t[t]
+        # temp3 = solution[t, iPos]
+        # temp1 = 1.0
+        # temp2 = 1.0
+        temp3 = 1.0
+        value += terminalFunction(Val(k), solution[:, iPos].u[t][k], solution[:, iPos].t[t], solution[:, iPos].u[t])
     end
     value / pathsPerInitialValue
 end

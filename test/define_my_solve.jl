@@ -17,14 +17,14 @@ ensembleProblem = ensemble.EnsembleProblem(problem)
 sol = tempFunc(ensembleProblem, paths)
 @test sol isa sde.EnsembleSolution
 @test length(sol) == paths
-@test sol[1] isa sde.RODESolution
-@test length(sol[1].u) ≈ t1 / 2dt + 1
-@test applicable(sol[1], 0.0)
-@test typeof(sol[1].alg) == typeof(alg)
-@test sol[1].t[1] == t0
-@test sol[1].t[end] == t1
-@test sol[1].t[2] - sol[1].t[1] ≈ 2dt
-@test stats.var(sol[1].u)[1] > 0.00001
+@test sol[:, 1] isa sde.RODESolution
+@test length(sol[:, 1]) ≈ t1 / 2dt + 1
+@test applicable(sol[:, 1], 0.0)
+@test typeof(sol[:, 1].alg) == typeof(alg)
+@test sol[:, 1].t[1] == t0
+@test sol[:, 1].t[end] == t1
+@test sol[:, 1].t[2] - sol[:, 1].t[1] ≈ 2dt
+@test stats.var(sol[:, 1].u)[1] > 0.00001
 
 numInitialVals = 5
 u0 = [[0.1 * i] for i in 1:numInitialVals]
@@ -35,12 +35,12 @@ sol = tempFunc(ensembleProblem, paths * numInitialVals)
 
 #* test initial values
 @test length(sol) == paths * numInitialVals
-@test sol[1].u[1][1] ≈ 0.1
-@test sol[paths+1].u[1][1] ≈ 0.2
-@test sol[2paths+1].u[1][1] ≈ 0.3
-@test sol[3paths+1].u[1][1] ≈ 0.4
-@test sol[4paths+1].u[1][1] ≈ 0.5
-@test sol[paths].u[1][1] ≈ 0.1
-@test sol[2paths].u[1][1] ≈ 0.2
-@test sol[3paths].u[1][1] ≈ 0.3
-@test sol[4paths].u[1][1] ≈ 0.4
+@test sol[:, 1].u[1][1] ≈ 0.1
+@test sol[:, paths+1].u[1][1] ≈ 0.2
+@test sol[:, 2paths+1].u[1][1] ≈ 0.3
+@test sol[:, 3paths+1].u[1][1] ≈ 0.4
+@test sol[:, 4paths+1].u[1][1] ≈ 0.5
+@test sol[:, paths].u[1][1] ≈ 0.1
+@test sol[:, 2paths].u[1][1] ≈ 0.2
+@test sol[:, 3paths].u[1][1] ≈ 0.3
+@test sol[:, 4paths].u[1][1] ≈ 0.4
