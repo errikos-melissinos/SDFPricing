@@ -286,13 +286,6 @@ end
 @inline function solve_takeExpectation(pathsPerInitialValue, solution, k, t, j, terminalFunction, indices...)
     value = 0.0
     for (_, iPos) in enumerate(((j-1)*pathsPerInitialValue+1):(j*pathsPerInitialValue))
-        # temp = solution[:, iPos].t[t]
-        # temp1 = solution[t, iPos][k]
-        # temp2 = solution[:, iPos].t[t]
-        # temp3 = solution[t, iPos]
-        # temp1 = 1.0
-        # temp2 = 1.0
-        temp3 = 1.0
         value += terminalFunction(Val(k), solution[:, iPos].u[t][k], solution[:, iPos].t[t], solution[:, iPos].u[t])
     end
     value / pathsPerInitialValue
