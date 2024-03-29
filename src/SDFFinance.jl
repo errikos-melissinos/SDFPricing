@@ -1,4 +1,4 @@
-module ConsumptionFinance
+module SDFFinance
 
 #* import packages
 import StochasticDiffEq as sde

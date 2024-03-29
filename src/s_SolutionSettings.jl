@@ -19,10 +19,9 @@ struct SolutionSettings{alg}
         algorithm=sde.EM(),
         pathsPerInitialValue=default_numPathsPerInitialValue,
         continuousPayoffRanges=xRanges,
-        continuousPayoffVars=[2],
+        continuousPayoffVars=[],
         continuousPayoffDuration=tRange[end])
 
-        println("These are default/example solution settings.")
         new{typeof(algorithm)}(xRanges, initialValues, tRange, dt, pathsPerInitialValue, algorithm, continuousPayoffRanges, continuousPayoffVars, continuousPayoffDuration)
     end
 

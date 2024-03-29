@@ -15,7 +15,6 @@ struct Problem
         terminalFunction=(k, x, y, z) -> exp(-x),
         diagonalNoise=true
     )
-        println("This is a default/example problem.")
         new(drift, diffusion, numNoiseVariables, outVariables, terminalFunction, diagonalNoise)
     end
 

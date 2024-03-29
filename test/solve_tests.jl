@@ -29,6 +29,7 @@ bondYield(t, x) = -log(bondPrice2(t, x)) / t
 @test abs(bondYield(10.0, 0.0)) < r(0.0) + 0.00001
 
 
+#* test two state variables
 volatility = 0.0000001
 xRanges = [-0.05:0.01:0.05, -0.05:0.01:0.04]
 tRange = 0.0:1.0:10.0
@@ -48,7 +49,6 @@ bondYield3(t, x, y) = -log(bondPrice3(t, x, y)) / t
 @test abs(bondYield3(1.0, 0.0, y0) - r3(0.0, y0)) < 0.00001
 @test abs(bondYield3(5.0, 0.0, y0) - r3(0.0, y0)) < 0.00001
 @test abs(bondYield3(10.0, 0.0, y0) - r3(0.0, y0)) < 0.00001
-
 #* test initial values
 @test collect(size(bondPrice3.samplePaths)) == length.(xRanges)
 @test bondPrice3.samplePaths[1, 1][:, 1] ≈ u0[1]
@@ -56,35 +56,10 @@ bondYield3(t, x, y) = -log(bondPrice3(t, x, y)) / t
 @test bondPrice3.samplePaths[1, 2][:, 1] ≈ u0[1+length(xRanges[1])]
 
 
+#* test continuous payoff solution
+sett4 = cf.SolutionSettings(sett3; continuousPayoffVars=[3])
+((bondPrice4,), (priceConsumptionRatio,)) = cf.solve(prob3, sett4)
 
-# using DifferentialEquations
-# α = 1
-# β = 1
-# u₀ = 1 / 2
-# f(u, p, t) = α * u
-# g(u, p, t) = β * u
-# dt = 1 // 2^(4)
-# tspan = (0.0, 1.0)
-# prob = SDEProblem(f, g, u₀, (0.0, 1.0))
-# function lorenz(du, u, p, t)
-#     du[1] = 10.0(u[2] - u[1])
-#     du[2] = u[1] * (28.0 - u[3]) - u[2]
-#     du[3] = u[1] * u[2] - (8 / 3) * u[3]
-# end
-
-# function σ_lorenz(du, u, p, t)
-#     du[1] = 3.0
-#     du[2] = 3.0
-#     du[3] = 3.0
-# end
-
-# prob_sde_lorenz = SDEProblem(lorenz, σ_lorenz, [1.0, 0.0, 0.0], (0.0, 10.0))
-# ensembleprob = EnsembleProblem(prob_sde_lorenz)
-# sol = solve(ensembleprob, EnsembleThreads(), trajectories=1000)
-
-# using DifferentialEquations.EnsembleAnalysis
-# summ = EnsembleSummary(sol, 0:0.01:1)
-# plot(summ, labels="Middle 95%")
-# summ = EnsembleSummary(sol, 0:0.01:1; quantiles=[0.25, 0.75])
-# plot!(summ, labels="Middle 50%", legend=true)
-
+using Plots
+x = collect(xRanges[1])
+plot(x, priceConsumptionRatio.(x, 0.0))
