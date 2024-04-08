@@ -296,8 +296,8 @@ end
     value / pathsPerInitialValue
 end
 
-function getDerivatives(sol, epsilon=1e-5)
-    DPC(x) = dataIntp.derivative(priceConsumptionRatio.intp, x)
+function derivatives(sol, epsilon=1e-5)
+    DPC(x) = dataIntp.derivative(sol.intp, x)
     epsilon = 1e-5
     D2PC(x) = x > (sol.solutionSettings.xRanges[1][end] - sol.solutionSettings.xRanges[1][1]) / 2 ? (-DPC(x - epsilon) + DPC(x)) / epsilon : (DPC(x + epsilon) - DPC(x)) / epsilon
 
