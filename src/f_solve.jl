@@ -206,9 +206,14 @@ function solve_continuousPayoff(solutions)
     for sol in solutions
         if sol.outVariable ∈ sol.solutionSettings.continuousPayoffVars
             integratedValues = [QuadGK.quadgk(t -> sol(t, args...), 0.0, sol.solutionSettings.continuousPayoffDuration)[1] for args in iter.product(sol.solutionSettings.continuousPayoffRanges...)]
+            if length(sol.solutionSettings.continuousPayoffRanges) == 1
+                push!(continuousPayoffSolutions, ContinuousPayoffSolution(integratedValues, dataIntp.BSplineApprox(integratedValues,
+                        sol.solutionSettings.continuousPayoffRanges[1], 3, 4, :Uniform, :Average, extrapolate=false), sol, sol.problem, sol.solutionSettings, sol.outVariable))
+            else
+                push!(continuousPayoffSolutions, ContinuousPayoffSolution(integratedValues, intp.cubic_spline_interpolation(Tuple(sol.solutionSettings.continuousPayoffRanges), integratedValues), sol, sol.problem, sol.solutionSettings, sol.outVariable))
+            end
             # push!(continuousPayoffSolutions, ContinuousPayoffSolution(integratedValues, intp.cubic_spline_interpolation(Tuple(sol.solutionSettings.continuousPayoffRanges), integratedValues), sol, sol.problem, sol.solutionSettings, sol.outVariable))
-            push!(continuousPayoffSolutions, ContinuousPayoffSolution(integratedValues, dataIntp.BSplineApprox(integratedValues,
-                    sol.solutionSettings.continuousPayoffRanges, 3, 4, :Uniform, :Average, extrapolate=false), sol, sol.problem, sol.solutionSettings, sol.outVariable))
+
         end
     end
     (solutions, continuousPayoffSolutions)
