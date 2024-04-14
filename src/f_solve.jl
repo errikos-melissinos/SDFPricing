@@ -305,7 +305,7 @@ end
 
 function simulate(sol, tRange, dt, initialValues)
     #* get the values of the inputs
-    (drift, diffusion, diagonalNoise, algorithm) = (sol.problem.drift, sol.problem.diffusion, sol.problem.diagonalNoise, sol.solutionSettings.algorithm)
+    (drift, diffusion, diagonalNoise, algorithm, numNoiseVariables) = (sol.problem.drift, sol.problem.diffusion, sol.problem.diagonalNoise, sol.solutionSettings.algorithm, sol.problem.numNoiseVariables)
 
     #* define problem depending on whether the noise is diagonal or not
     if diagonalNoise
@@ -319,6 +319,6 @@ function simulate(sol, tRange, dt, initialValues)
         end
     end
 
-    sde.solve(sdeProblem, sol.algorithm, dt=dt, saveat=dt)
+    sde.solve(sdeProblem, algorithm, dt=dt, saveat=dt)
 
 end
