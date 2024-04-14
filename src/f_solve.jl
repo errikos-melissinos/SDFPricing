@@ -298,10 +298,27 @@ end
 
 function derivatives(sol, epsilon=1e-5)
     DPC(x) = dataIntp.derivative(sol.intp, x)
-    epsilon = 1e-5
     D2PC(x) = x > (sol.solutionSettings.xRanges[1][end] - sol.solutionSettings.xRanges[1][1]) / 2 ? (-DPC(x - epsilon) + DPC(x)) / epsilon : (DPC(x + epsilon) - DPC(x)) / epsilon
 
     return (DPC, D2PC)
 end
 
+function simulate(sol, tRange, dt, initialValues)
+    #* get the values of the inputs
+    (drift, diffusion, diagonalNoise, algorithm) = (sol.problem.drift, sol.problem.diffusion, sol.problem.diagonalNoise, sol.solutionSettings.algorithm)
 
+    #* define problem depending on whether the noise is diagonal or not
+    if diagonalNoise
+        W = sde.WienerProcess(0.0, 0.0, 0.0)
+        sdeProblem = sde.SDEProblem(drift, diffusion, initialValues[1], (tRange[1], tRange[end]), noise=W)
+    else
+        if numNoiseVariables == 1
+            println("You are using a non-diagonal noise process with only one noise variable. It is probably preferable to adjust this choice.")
+        else
+            sdeProblem = sde.SDEProblem(drift, diffusion, initialValues[1], (tRange[1], tRange[end]), noise_rate_prototype=zeros(length(initialValues[1]), numNoiseVariables))
+        end
+    end
+
+    sde.solve(sdeProblem, sol.algorithm, dt=dt, saveat=dt)
+
+end

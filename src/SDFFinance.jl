@@ -16,6 +16,6 @@ include("s_Solution.jl")
 include("f_solve.jl")
 
 
-export solve, Problem, SinglePayoffSolution, ContinuousPayoffSolution, SolutionSettings, toVector
+export solve, Problem, SinglePayoffSolution, ContinuousPayoffSolution, SolutionSettings, toVector, derivatives, simulate
 
 end
