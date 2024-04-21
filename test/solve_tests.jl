@@ -1,5 +1,5 @@
 using Test
-import SDFFinance as sdf
+import SDFPricing as sdf
 import DifferentialEquations.EnsembleAnalysis as ensemble
 import StochasticDiffEq as sde
 import Statistics as stats

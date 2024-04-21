@@ -1,5 +1,5 @@
 using Test
-import SDFFinance as sdf
+import SDFPricing as sdf
 
 #* test the pickIndex function
 #* the first ```paths``` number of paths should be assigned to the first initial value, then to the second and so on 
