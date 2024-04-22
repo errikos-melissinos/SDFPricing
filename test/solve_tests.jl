@@ -59,7 +59,3 @@ bondYield3(t, x, y) = -log(bondPrice3(t, x, y)) / t
 #* test continuous payoff solution
 sett4 = sdf.SolutionSettings(sett3; continuousPayoffVars=[3])
 ((bondPrice4,), (priceConsumptionRatio,)) = sdf.solve(prob3, sett4)
-
-using Plots
-x = collect(xRanges[1])
-plot(x, priceConsumptionRatio.(x, 0.0))
